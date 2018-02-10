@@ -1,0 +1,39 @@
+{
+  "name": "ts-bin",
+  "version": "1.0.0",
+  "description": "",
+  "private": true,
+  "dependencies": {
+    "@types/form-data": "^2.2.1",
+    "@types/lodash": "^4.14.91",
+    "axios": "^0.17.1",
+    "lodash": "^4.17.4",
+    "moment": "^2.20.1",
+    "typescript": "^2.7",
+    "weibo-ids": "^0.2.1"
+  },
+  "devDependencies": {},
+  "engines": {
+    "node": ">=8.9.0"
+  },
+  "scripts": {
+    "start": "",
+    "stop": "",
+    "dev": "",
+    "debug": "",
+    "tsc": "tsc",
+    "tscw": "tsc -w",
+    "lint": "eslint .",
+    "ci": "npm run lint && npm run cov",
+    "autod": "autod"
+  },
+  "ci": {
+    "version": "8"
+  },
+  "repository": {
+    "type": "git",
+    "url": ""
+  },
+  "author": "",
+  "license": "MIT"
+}

@@ -16,20 +16,13 @@ import { writeFile, axiosCatch, noError } from "../../model/tool"
 import { createWriteStream, unlinkSync } from 'fs'
 import * as _ from "lodash"
 import * as archiver from 'archiver'
-import { constants } from 'http2';
+import { Img, packZip } from './lib'
 
 const regSite = /https:\/\/nhentai.net\/g\/(\d+)/
 
 export function valid(url: string): boolean {
     return regSite.test(url)
 }
-
-interface Img {
-    fname: string
-    data: Buffer
-}
-
-const imgs: Img[] = []
 
 interface Info {
     id: number
@@ -38,25 +31,44 @@ interface Info {
 }
 
 async function exec(bpath: string, outdir: string = '') {
+    const imgs: Img[] = []
+    let mc = regSite.exec(bpath)
+    if (!mc) return imgs
+    const id = mc[1]
     const mainHtml = await axios.get<string>(bpath, { responseType: 'text' })
     const infoLine = mainHtml.data.split('\n').find((e) => {
         return e.includes('var gallery = new N.gallery')
     })
-    if (!infoLine) return
-    const mc = /(\{.*\})/.exec(infoLine)
-    if (!mc) return
+    if (!infoLine) return imgs
+    mc = /(\{.*\})/.exec(infoLine)
+    if (!mc) return imgs
     const info = JSON.parse(mc[1]) as Info
-    console.log(info)
+    for (let index = 1; index <= info.num_pages; index++) {
+        const src = `https://i.nhentai.net/galleries/${info.media_id}/${index}.jpg`
+        let img = await noError(axios.get<Buffer>(src, { responseType: 'arraybuffer' }))
+        if (!img) {
+            console.log([bpath, src, 'error skip'].join(' -> '))
+            continue
+        }
+        let fname = [outdir, id, '_', _.padStart(index.toString(), 2, '0'), extname(src)].join('')
+        console.log([bpath, src, fname].join(' -> '))
+        await writeFile(fname, img.data)
+        imgs.push({ fname, data: img.data })
+    }
+    return imgs
 }
 
 export async function main(bpath: string, outdir: string = '') {
+    const imgs: Img[] = []
     try {
-        await exec(bpath, outdir)
+        imgs.push(...await exec(bpath, outdir))
     } catch (error) {
         console.log(axiosCatch(error))
         console.log('fetch imgs FIN!')
     }
-    if (imgs.length) {
-        // await packZip()
+    let mc = regSite.exec(bpath)
+    if (imgs.length && mc) {
+        const id = mc[1]
+        await packZip(outdir + 'nh_' + id + '.zip', imgs)
     }
 }

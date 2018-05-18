@@ -110,4 +110,3 @@ export async function main(bpath: string, outdir: string = '') {
         await packZip()
     }
 }
-

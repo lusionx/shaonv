@@ -10,6 +10,7 @@
     "archiver": "^2.1.1",
     "axios": "^0.17.1",
     "lodash": "^4.17.4",
+    "lz-string": "^1.4.4",
     "moment": "^2.20.1",
     "typescript": "^2.7",
     "weibo-ids": "^0.2.1"

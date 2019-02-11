@@ -6,7 +6,7 @@
  */
 import * as moment from 'moment'
 import axios from 'axios'
-import { writeFile, axiosCatch, noError } from "../../model/tool"
+import { writeFile, axiosCatch, noError } from "../model/tool"
 import { Img, packZip } from './lib'
 import { decompressFromBase64 } from 'lz-string'
 import { extname } from 'path'

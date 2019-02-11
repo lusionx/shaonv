@@ -1,4 +1,3 @@
-import { axiosCatch } from "../model/tool"
 import * as yargs from 'yargs'
 
 interface Site {
@@ -13,13 +12,14 @@ const argv = yargs.usage('$0 --dir <fo> url')
     .help('h').alias('h', 'help')
     .argv
 
-import * as nhent from './site/nht'
-const s2 = { valid: nhent.valid, main: nhent.main } as Site
-import * as gui from './site/manhuagui'
-const s3 = { valid: gui.valid, main: gui.main } as Site
+import * as nhent from '../site/nht'
+import * as gui from '../site/manhuagui'
 
 process.nextTick(async function () {
-    for (const { valid, main } of [s2, s3]) {
+    const sites: Site[] = []
+    sites.push({ valid: nhent.valid, main: nhent.main })
+    sites.push({ valid: gui.valid, main: gui.main })
+    for (const { valid, main } of sites) {
         const url = argv._[0]
         const dir = argv.dir as string
         if (valid(url)) {

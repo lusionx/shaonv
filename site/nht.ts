@@ -11,7 +11,7 @@ https://i.nhentai.net/galleries/1226654/1.jpg
 
 import axios from 'axios'
 import { basename, extname } from 'path'
-import { writeFile, axiosCatch, noError } from "../../model/tool"
+import { writeFile, axiosCatch, noError } from "../model/tool"
 import { Img, packZip } from './lib'
 
 const regSite = /https:\/\/nhentai.net\/g\/(\d+)/

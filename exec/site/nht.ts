@@ -9,13 +9,9 @@ https://i.nhentai.net/galleries/1226654/1.jpg
 */
 
 
-import * as moment from 'moment'
 import axios from 'axios'
 import { basename, extname } from 'path'
 import { writeFile, axiosCatch, noError } from "../../model/tool"
-import { createWriteStream, unlinkSync } from 'fs'
-import * as _ from "lodash"
-import * as archiver from 'archiver'
 import { Img, packZip } from './lib'
 
 const regSite = /https:\/\/nhentai.net\/g\/(\d+)/
@@ -50,7 +46,7 @@ async function exec(bpath: string, outdir: string = '') {
             console.log([bpath, src, 'error skip'].join(' -> '))
             continue
         }
-        let fname = [outdir, id, '_', _.padStart(index.toString(), 2, '0'), extname(src)].join('')
+        let fname = [outdir, id, '_', index.toString().padStart(2, '0'), extname(src)].join('')
         console.log([bpath, src, fname].join(' -> '))
         await writeFile(fname, img.data)
         imgs.push({ fname, data: img.data })

@@ -1,24 +1,6 @@
-import * as _ from "lodash"
 import { createInterface } from 'readline'
 import { createReadStream, writeFile as _writeFile } from 'fs'
 
-
-/** 不要滥用 */
-export async function reawait<T>(j: number, msSleep: number = 0, p: () => Promise<T>): Promise<T> {
-    let err: any
-    for (let i of _.range(j)) {
-        try {
-            return await p()
-        } catch (error) {
-            err = error
-            // console.log('reawart', i)
-            if (msSleep) {
-                await sleep(msSleep)
-            }
-        }
-    }
-    throw err
-}
 
 export async function noError<T>(p: Promise<T>): Promise<T | undefined> {
     let err: any

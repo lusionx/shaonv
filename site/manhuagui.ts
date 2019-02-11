@@ -11,7 +11,7 @@ import { Img, packZip } from './lib'
 import { decompressFromBase64 } from 'lz-string'
 import { extname } from 'path'
 
-
+const HOME = 'https://www.manhuagui.com'
 const regSite = /https:\/\/www.manhuagui.com\/comic\/(\d+)\/(\d+)\.html/
 
 interface Info {
@@ -65,7 +65,9 @@ async function exec(bpath: string, outdir: string = '') {
     let info: Info | undefined
     eval(eval(infoLine.slice(1)))
     if (!info) return imgs
-    console.log(info)
+    console.log('%j', info)
+    console.log({ Next: `${HOME}/comic/${info.bid}/${info.nextId}.html` })
+    console.log({ Prev: `${HOME}/comic/${info.bid}/${info.prevId}.html` })
     for (let index = 0; index < info.files.length; index++) {
         const ee = info.files[index]
         const upath = 'https://i.hamreus.com' + encodeURI(info.path) + ee
@@ -76,7 +78,7 @@ async function exec(bpath: string, outdir: string = '') {
                 md5: info.sl.md5,
             },
             headers: {
-                Referer: 'https://www.manhuagui.com/'
+                Referer: HOME + '/'
             },
             responseType: 'arraybuffer'
         })

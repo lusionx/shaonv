@@ -1,6 +1,12 @@
 {
   "name": "shaonv",
-  "version": "1.0.0",
+  "version": "0.3.1",
+  "bin": {
+    "shaonv": "index.js"
+  },
+  "files": [
+    "**/*.js"
+  ],
   "description": "",
   "dependencies": {
     "archiver": "^3.0.0",
@@ -23,7 +29,7 @@
   },
   "repository": {
     "type": "git",
-    "url": ""
+    "url": "https://github.com/lusionx/shaonv"
   },
   "author": "lusion",
   "license": "MIT"

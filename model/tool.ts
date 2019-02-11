@@ -64,7 +64,7 @@ export function writeFile(path: string, data: any): Promise<void> {
     })
 }
 
-class Single<T> {
+export class Single<T> {
     instance?: T
     get(fn?: () => T): T {
         if (this.instance) {

@@ -7,7 +7,6 @@
 import * as moment from 'moment'
 import axios from 'axios'
 import { writeFile, axiosCatch, noError } from "../../model/tool"
-import * as _ from "lodash"
 import { Img, packZip } from './lib'
 import { decompressFromBase64 } from 'lz-string'
 import { extname } from 'path';
@@ -81,7 +80,7 @@ async function exec(bpath: string, outdir: string = '') {
             },
             responseType: 'arraybuffer'
         })
-        let fname = [outdir, info.cid, '_', _.padStart(index.toString(), 2, '0'), extname(ee)].join('')
+        let fname = [outdir, info.cid, '_', index.toString().padStart(2, '0'), extname(ee)].join('')
         console.log(' ', info.bname, info.cname, '->', fname)
         await writeFile(fname, resp.data)
         imgs.push({ data: resp.data, fname: fname, })

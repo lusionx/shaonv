@@ -1,42 +1,31 @@
 {
-  "name": "ts-bin",
+  "name": "shaonv",
   "version": "1.0.0",
   "description": "",
-  "private": true,
   "dependencies": {
-    "@types/archiver": "^2.1.0",
-    "@types/form-data": "^2.2.1",
-    "@types/lodash": "^4.14.91",
     "archiver": "^2.1.1",
     "axios": "^0.17.1",
     "lodash": "^4.17.4",
     "lz-string": "^1.4.4",
-    "moment": "^2.20.1",
-    "typescript": "^2.7",
-    "weibo-ids": "^0.2.1"
+    "moment": "^2.20.1"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "@types/archiver": "^2.1.0",
+    "@types/form-data": "^2.2.1",
+    "@types/lodash": "^4.14.91",
+    "typescript": "^3.3.3"
+  },
   "engines": {
     "node": ">=8.9.0"
   },
   "scripts": {
-    "start": "",
-    "stop": "",
-    "dev": "",
-    "debug": "",
     "tsc": "tsc",
-    "tscw": "tsc -w",
-    "lint": "eslint .",
-    "ci": "npm run lint && npm run cov",
-    "autod": "autod"
-  },
-  "ci": {
-    "version": "8"
+    "tscw": "tsc -w"
   },
   "repository": {
     "type": "git",
     "url": ""
   },
-  "author": "",
+  "author": "lusion",
   "license": "MIT"
 }

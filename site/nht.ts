@@ -39,12 +39,14 @@ async function exec(bpath: string, outdir: string = '', index: number = 1) {
     mc = /(\{.*\})/.exec(infoLine)
     if (!mc) return imgs
     const info = JSON.parse(mc[1]) as Info
+    console.log('%j', info)
     const pad = info.num_pages > 99 ? 3 : 2
     while (index <= info.num_pages) {
         const src = `https://i.nhentai.net/galleries/${info.media_id}/${index}.jpg`
         let img = await noError(axios.get<Buffer>(src, { responseType: 'arraybuffer' }))
         if (!img) {
             console.log([bpath, src, 'error skip'].join(' -> '))
+            index++
             continue
         }
         let fname = [outdir, id, '_', index.toString().padStart(pad, '0'), extname(src)].join('')

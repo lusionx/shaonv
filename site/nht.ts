@@ -52,7 +52,11 @@ async function exec(bpath: string, outdir: string = '', index: number = 1) {
         let fname = [outdir, id, '_', index.toString().padStart(pad, '0'), extname(src)].join('')
         console.log([bpath, src, fname].join(' -> '))
         await writeFile(fname, img.data)
-        imgs.push({ fname, data: img.data })
+        if (info.num_pages > 99) {
+            imgs.push({ fname, data: Buffer.alloc(0) })
+        } else {
+            imgs.push({ fname, data: img.data })
+        }
         index++
     }
     return imgs
@@ -68,6 +72,11 @@ export async function main(bpath: string, outdir: string = '') {
         console.log('fetch imgs FIN!')
     }
     let mc = regSite.exec(bpath)
+    if (imgs.length > 99 && mc) {
+        const id = mc[1]
+        console.log(`zip nh_${id}.zip ${id}_*.jpg`)
+        return
+    }
     if (imgs.length && mc) {
         const id = mc[1]
         await packZip(outdir + 'nh_' + id + '.zip', imgs)

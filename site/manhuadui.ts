@@ -7,7 +7,7 @@ import * as moment from 'moment'
 import axios from 'axios'
 import { writeFile, axiosCatch, noError } from "../model/tool"
 import { Img, packZip } from './lib'
-import { extname } from 'path'
+import { extname, join as pathJoin, dirname } from 'path'
 import * as crypto from 'crypto'
 
 
@@ -39,10 +39,9 @@ interface Info {
     pageUrl: string
 }
 
-async function exec(bpath: string, outdir: string = '') {
-    const imgs: Img[] = []
+async function exec(imgs: Img[], bpath: string, outdir: string = '') {
     let mc = regSite.exec(bpath)
-    if (!mc) return imgs
+    if (!mc) return
     const mainHtml = await axios.get<string>(bpath, { responseType: 'text' })
     let infoLine = ''
     for (const e of mainHtml.data.split('\n')) {
@@ -51,7 +50,7 @@ async function exec(bpath: string, outdir: string = '') {
             infoLine = mc[1]
         }
     }
-    if (!infoLine) return imgs
+    if (!infoLine) return
     infoLine = ['(function () {', infoLine, 'return {chapterImages,chapterPath,pageTitle,pageId,pageUrl,prevChapterData,nextChapterData };})()'].join('\n')
     const info = eval(infoLine) as Info
     const der = crypto.createDecipheriv('aes-128-cbc', "123456781234567G", "ABCDEF1G34123412")
@@ -78,33 +77,37 @@ async function exec(bpath: string, outdir: string = '') {
     for (let index = 0; index < info.files.length; index++) {
         const ee = info.files[index]
         const upath = 'https://mhcdn.manhuazj.com/' + info.chapterPath + ee
-        console.log(info.name, upath)
+        console.log(info.name, index, upath)
         const resp = await axios.get<Buffer>(upath, {
+            timeout: 1e4,
             headers: {
-                Referer: HOME + '/'
+                Referer: HOME + '/',
+                'User-Agent': 'Mozilla/5.0',
+                Accept: '*/*',
             },
             responseType: 'arraybuffer'
         })
-        let fname = [outdir, info.id, '_', index.toString().padStart(PAD, '0'), extname(ee)].join('')
+        let fname = [info.id, '_', index.toString().padStart(PAD, '0'), extname(ee)].join('')
         console.log('  ->', fname)
-        await writeFile(fname, resp.data)
+        await writeFile(pathJoin(outdir, fname), resp.data)
         imgs.push({ data: resp.data, fname: fname, })
     }
-    return imgs
+    return info
 }
 
 export async function main(bpath: string, outdir: string = '') {
     const imgs: Img[] = []
     try {
-        imgs.push(...await exec(bpath, outdir))
+        const info = await exec(imgs, bpath, outdir)
+        if (!info) return
+        let mc = regSite.exec(bpath)
+        if (imgs.length && mc) {
+            const zp = 'mhd_' + mc[1] + '_' + mc[2] + '.zip'
+            await packZip(pathJoin(outdir, zp), imgs)
+            console.log('mv', zp, info.name + '.zip')
+        }
     } catch (error) {
         console.log(axiosCatch(error))
         console.log('fetch imgs FIN!')
-    }
-    let mc = regSite.exec(bpath)
-    if (imgs.length && mc) {
-        const nn = mc[1]
-        const id = mc[2]
-        await packZip(outdir + 'mhd_' + nn + '_' + id + '.zip', imgs)
     }
 }

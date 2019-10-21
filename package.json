@@ -1,6 +1,6 @@
 {
   "name": "shaonv",
-  "version": "0.4.3",
+  "version": "0.5.0",
   "bin": {
     "shaonv": "index.js"
   },

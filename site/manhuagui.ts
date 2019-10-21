@@ -68,6 +68,7 @@ async function exec(bpath: string, outdir: string = '') {
     console.log('%j', info)
     console.log({ Next: `${HOME}/comic/${info.bid}/${info.nextId}.html` })
     console.log({ Prev: `${HOME}/comic/${info.bid}/${info.prevId}.html` })
+    const PAD = info.files.length > 99 ? 3 : 2
     for (let index = 0; index < info.files.length; index++) {
         const ee = info.files[index]
         const upath = 'https://i.hamreus.com' + encodeURI(info.path) + ee
@@ -82,7 +83,7 @@ async function exec(bpath: string, outdir: string = '') {
             },
             responseType: 'arraybuffer'
         })
-        let fname = [outdir, info.cid, '_', index.toString().padStart(2, '0'), extname(ee)].join('')
+        let fname = [outdir, info.cid, '_', index.toString().padStart(PAD, '0'), extname(ee)].join('')
         console.log(' ', info.bname, info.cname, '->', fname)
         await writeFile(fname, resp.data)
         imgs.push({ data: resp.data, fname: fname, })
@@ -92,8 +93,8 @@ async function exec(bpath: string, outdir: string = '') {
 
 export async function main(bpath: string, outdir: string = '') {
     const imgs: Img[] = []
-    imgs.push(...await exec(bpath, outdir))
     try {
+        imgs.push(...await exec(bpath, outdir))
     } catch (error) {
         console.log(axiosCatch(error))
         console.log('fetch imgs FIN!')

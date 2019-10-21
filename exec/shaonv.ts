@@ -6,27 +6,31 @@ interface Site {
 }
 
 const argv = yargs.usage('$0 --dir <fo> url')
-    .demandCommand(1)
-    .demandOption(['dir'])
-    .alias('d', 'dir').describe('d', '目录')
+    .option('dir', {
+        alias: 'd',
+        describe: '目录',
+        default: './',
+    })
     .help('h').alias('h', 'help')
     .argv
 
 import * as nhent from '../site/nht'
 import * as gui from '../site/manhuagui'
 import * as ppmh from '../site/pipimhw'
+import * as dui from '../site/manhuadui'
 
 process.nextTick(async function () {
     const sites: Site[] = []
     sites.push({ valid: nhent.valid, main: nhent.main })
     sites.push({ valid: gui.valid, main: gui.main })
+    sites.push({ valid: dui.valid, main: dui.main })
     sites.push({ valid: ppmh.valid, main: ppmh.main })
     for (const { valid, main } of sites) {
-        const url = argv._[0]
-        const dir = argv.dir as string
-        if (valid(url)) {
-            await main(url, dir)
-            break
+        for (const url of argv._) {
+            const dir = argv.dir as string
+            if (valid(url)) {
+                await main(url, dir)
+            }
         }
     }
 })

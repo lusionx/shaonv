@@ -77,7 +77,8 @@ async function exec(imgs: Img[], bpath: string, outdir: string = '') {
     for (let index = 0; index < info.files.length; index++) {
         const ee = info.files[index]
         const upath = 'https://mhcdn.manhuazj.com/' + info.chapterPath + ee
-        console.log(info.name, index, upath)
+        let fname = [info.id, '_', index.toString().padStart(PAD, '0'), extname(ee)].join('')
+        console.log(info.name, index, upath, '->', fname)
         const resp = await reawait(3, 400, async () => {
             return await axios.get<Buffer>(upath, {
                 timeout: 1e4,
@@ -89,8 +90,6 @@ async function exec(imgs: Img[], bpath: string, outdir: string = '') {
                 responseType: 'arraybuffer'
             })
         })
-        let fname = [info.id, '_', index.toString().padStart(PAD, '0'), extname(ee)].join('')
-        console.log('  ->', fname)
         await writeFile(pathJoin(outdir, fname), resp.data)
         imgs.push({ data: resp.data, fname: fname, })
     }
@@ -98,12 +97,11 @@ async function exec(imgs: Img[], bpath: string, outdir: string = '') {
 }
 
 async function fetchList(bpath: string) {
-    console.log(bpath)
+    console.log('current', bpath)
     let mc = lsSite.exec(bpath)
     if (!mc) return
     let cname = mc[1]
     let rel = new RegExp(`href="/manhua/${cname}/(\\d+).html"`)
-    console.log(rel)
     const ret = /e="(.+?)"/g
     const mainHtml = await axios.get<string>(bpath, { responseType: 'text' })
     const mp = new Map<string, string>()

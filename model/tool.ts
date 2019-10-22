@@ -11,6 +11,22 @@ export async function noError<T>(p: Promise<T>): Promise<T | undefined> {
     }
 }
 
+export async function reawait<T>(j: number, msSleep: number = 0, p: () => Promise<T>): Promise<T> {
+    let err: any
+    for (let index = 0; index < j; index++) {
+        try {
+            return await p()
+        } catch (error) {
+            err = error
+            // console.log('reawart', i)
+            if (msSleep) {
+                await sleep(msSleep)
+            }
+        }
+    }
+    throw err
+}
+
 export function sleep(ms: number): Promise<void> {
     return new Promise<void>((res, rej) => {
         setTimeout(() => {

@@ -13,14 +13,13 @@ export function packZip(fname: string, imgs: Img[]) {
         const zip = archiver('zip')
         const output = createWriteStream(fname)
         output.on('close', function () {
-            console.log(zip.pointer() + ' total bytes');
-            console.log('archiver has been finalized and the output file descriptor has !close.')
+            console.log(fname, zip.pointer() + ' total bytes')
             res()
         })
         output.on('end', () => {
             console.log(zip.pointer() + ' total bytes', fname)
             console.log('Data has been drained')
-            rej()
+            res()
         })
         zip.on('warning', rej)
         // good practice to catch this error explicitly

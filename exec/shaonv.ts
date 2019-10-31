@@ -9,6 +9,7 @@ const argv = yargs.usage('$0 --dir <fo> url')
     .option('dir', {
         alias: 'd',
         describe: '目录',
+        string: true,
         default: './',
     })
     .help('h').alias('h', 'help')
@@ -22,14 +23,14 @@ import * as dui from '../site/manhuadui'
 process.nextTick(async function () {
     const sites: Site[] = []
     sites.push({ valid: nhent.valid, main: nhent.main })
-    sites.push({ valid: gui.valid, main: gui.main })
-    sites.push({ valid: dui.valid, main: dui.main })
+    sites.push(gui)
+    sites.push(dui)
     sites.push({ valid: ppmh.valid, main: ppmh.main })
     for (const { valid, main } of sites) {
-        for (const url of argv._) {
-            const dir = argv.dir as string
+        for (let url of argv._) {
+            [url] = url.split('?')
             if (valid(url)) {
-                await main(url, dir)
+                await main(url, argv.dir)
             }
         }
     }

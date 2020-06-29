@@ -32,13 +32,14 @@ async function exec(bpath: string, outdir: string = '', index: number = 1) {
     if (!mc) return imgs
     const id = mc[1]
     const mainHtml = await axios.get<string>(bpath, { responseType: 'text' })
-    const infoLine = mainHtml.data.split('\n').find((e) => {
-        return e.includes('var gallery = new N.gallery')
+    let infoLine = mainHtml.data.split('\n').find((e) => {
+        return e.includes('window._gallery')
     })
+    let _gallery: any = {}
     if (!infoLine) return imgs
-    mc = /(\{.*\})/.exec(infoLine)
+    eval(infoLine.replace("window.", ""))
     if (!mc) return imgs
-    const info = JSON.parse(mc[1]) as Info
+    const info: Info = _gallery
     console.log('%j', info)
     const pad = info.num_pages > 99 ? 3 : 2
     while (index <= info.num_pages) {

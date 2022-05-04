@@ -1,9 +1,9 @@
 {
   "name": "shaonv",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "main": "src/index.js",
   "bin": {
-    "shaonv": "exec/download.js"
+    "shaonv": "./exec/download.js"
   },
   "description": "",
   "dependencies": {

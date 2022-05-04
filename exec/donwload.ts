@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 import { Lancer } from "@xerjs/lancer";
 import assert from "assert";
 import { Hent } from "../src/sites/nht";

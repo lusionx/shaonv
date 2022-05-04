@@ -1,4 +1,4 @@
-declare module "lz-string" {
+declare module 'lz-string' {
   function compressToBase64(input: string): string;
   function decompressFromBase64(input: string): string;
 

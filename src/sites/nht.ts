@@ -13,7 +13,7 @@ import { alias, Cmd, Commander, length } from "@xerjs/lancer";
 import axios from "axios";
 import { extname } from "path";
 import { writeFile } from "fs/promises";
-import { Img, packZip, axiosCatch, noError } from "../lib";
+import { Img, packZip, axiosCatch, noError, times, doLimit } from "../lib";
 
 const regSite = /https:\/\/nhentai.net\/g\/(\d+)/;
 
@@ -70,7 +70,7 @@ export class Hent implements Commander {
 
 }
 
-async function exec(bpath: string, outdir: string = "", index: number = 1) {
+async function exec(bpath: string, outdir: string = "", limit: number = 5) {
     const imgs: Img[] = [];
     const mc = regSite.exec(bpath);
     if (!mc) return imgs;
@@ -79,7 +79,8 @@ async function exec(bpath: string, outdir: string = "", index: number = 1) {
     const infoLine = mainHtml.data.split("\n").find((e) => {
         return e.includes("window._gallery");
     });
-    const _gallery: any = {};
+    // eslint-disable-next-line prefer-const
+    let _gallery: any = {};
     if (!infoLine) return imgs;
     // eslint-disable-next-line no-eval
     eval(infoLine.replace("window.", ""));
@@ -87,25 +88,27 @@ async function exec(bpath: string, outdir: string = "", index: number = 1) {
     const info: Info = _gallery;
     console.log("%j", info);
     const pad = info.num_pages > 99 ? 3 : 2;
-    while (index <= info.num_pages) {
-        const src = `https://i.nhentai.net/galleries/${info.media_id}/${index}.jpg`;
-        const img = await noError(axios.get<Buffer>(src, { responseType: "arraybuffer" }));
-        if (!img) {
-            console.log([bpath, src, "error skip"].join(" -> "));
-            index++;
-            continue;
-        }
-        const fname = [outdir, id, "_", index.toString().padStart(pad, "0"), extname(src)].join("");
-        console.log([bpath, src, fname].join(" -> "));
-        await writeFile(fname, img.data);
-        if (info.num_pages > 99) {
-            imgs.push({ fname, data: Buffer.alloc(0) });
-        }
-        else {
-            imgs.push({ fname, data: img.data });
-        }
-        index++;
-    }
+    const qs = times(info.num_pages).map(i => {
+        return async (): Promise<void> => {
+            const index = i + 1;
+            const src = `https://i.nhentai.net/galleries/${info.media_id}/${index}.jpg`;
+            const img = await noError(axios.get<Buffer>(src, { responseType: "arraybuffer" }));
+            if (!img) {
+                console.log([bpath, src, "error skip"].join(" -> "));
+                return;
+            }
+            const fname = [outdir, id, "_", index.toString().padStart(pad, "0"), extname(src)].join("");
+            console.log([bpath, src, fname].join(" -> "));
+            await writeFile(fname, img.data);
+            if (info.num_pages > 99) {
+                imgs.push({ fname, data: Buffer.alloc(0) });
+            }
+            else {
+                imgs.push({ fname, data: img.data });
+            }
+        };
+    });
+    await doLimit(limit, qs);
     return imgs;
 }
 

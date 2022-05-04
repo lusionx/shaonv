@@ -1,11 +1,11 @@
 import Packer from "zip-stream";
 
 import { createWriteStream } from "fs";
+import { basename } from "path";
 
 export interface Img {
     fname: string;
-    data?: Buffer;
-    path?: string;
+    data: Buffer;
 }
 
 export async function packZip(fname: string, imgs: Img[]) {
@@ -13,6 +13,7 @@ export async function packZip(fname: string, imgs: Img[]) {
 
     function push(data: any, opt: any): Promise<any> {
         return new Promise<any>((res, rej) => {
+            console.log("entry %j", opt, data.length);
             archive.entry(data, opt, (err: Error, entry: any) => {
                 err ? rej(err) : res(entry);
             });
@@ -23,7 +24,7 @@ export async function packZip(fname: string, imgs: Img[]) {
     archive.pipe(output);
 
     const qs = imgs.map((img) => {
-        return push(img.data, { name: img.fname });
+        return push(img.data, { name: basename(img.fname) });
     });
     await Promise.all(qs);
     archive.finish();
@@ -55,3 +56,30 @@ export async function noError<T>(p: Promise<T>): Promise<T | undefined> {
     }
 }
 
+export function times(i: number): number[] {
+    return "1".repeat(i).split("").map((e, i) => i);
+}
+
+export function doLimit(limit: number, qs: (() => Promise<void>)[]): Promise<void[]> {
+    if (limit >= qs.length) {
+        return Promise.all(qs.map(fn => fn()));
+    }
+    const res = new Array<Promise<void>>(qs.length);
+    return new Promise((a, b) => {
+        function gogo(i: number) {
+            const end = qs[i]();
+            res[i] = end;
+            end.then(next(i)).catch(next(i));
+        }
+        function next(i: number) {
+            return () => {
+                const j = res.findIndex((r, j) => !res[j]);
+                if (j === -1) {
+                    return Promise.all(res).then(a).catch(b);
+                }
+                gogo(j);
+            };
+        }
+        times(limit).forEach(gogo);
+    });
+}

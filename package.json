@@ -1,6 +1,6 @@
 {
   "name": "shaonv",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "main": "src/index.js",
   "bin": {
     "shaonv": "./exec/download.js"
@@ -32,6 +32,7 @@
     "exec"
   ],
   "scripts": {
+    "prepare": "chmod +x exec/*.js",
     "ts": "ts-node",
     "build": "tsc -p ./tsconfig-build.json && cp package.json build",
     "buildClean": "rm -rf build"

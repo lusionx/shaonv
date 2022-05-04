@@ -13,7 +13,8 @@ import { alias, Cmd, Commander, length } from "@xerjs/lancer";
 import axios from "axios";
 import { extname } from "path";
 import { writeFile } from "fs/promises";
-import { Img, packZip, axiosCatch, noError, times, doLimit } from "../lib";
+import { packZip, axiosCatch, noError, times, doLimit } from "../lib";
+import { Img } from "../types";
 
 const regSite = /https:\/\/nhentai.net\/g\/(\d+)/;
 

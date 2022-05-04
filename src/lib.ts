@@ -2,11 +2,9 @@ import Packer from "zip-stream";
 
 import { createWriteStream, unlinkSync } from "fs";
 import { basename } from "path";
+import { Img } from "./types";
 
-export interface Img {
-    fname: string;
-    data: Buffer;
-}
+
 
 export async function packZip(fname: string, imgs: Img[]) {
     const archive = new Packer(); // OR new Packer(options)
@@ -83,5 +81,13 @@ export function doLimit(limit: number, qs: (() => Promise<void>)[]): Promise<voi
             };
         }
         times(limit).forEach(gogo);
+    });
+}
+
+export function sleep(ms: number): Promise<void> {
+    return new Promise<void>((res) => {
+        global.setTimeout(() => {
+            res();
+        }, ms);
     });
 }

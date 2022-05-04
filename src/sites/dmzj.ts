@@ -1,6 +1,6 @@
 /* eslint-disable no-eval */
 import axios from "axios";
-import { packZip, axiosCatch, } from "../lib";
+import { packZip, axiosCatch, times, doLimit, } from "../lib";
 import { extname, join as pathJoin, basename } from "path";
 import { Img } from "../types";
 import { writeFile } from "fs/promises";
@@ -70,7 +70,7 @@ async function fetchList(bpath: string) {
             mp.set(href, mct[1]);
         }
         else {
-            e.replace(/"(.+?)"/g, (m0, m1) => {
+            e.replace(/">(.+?)<\/a>"/g, (m0, m1) => {
                 if (m1 !== href && m1 !== "_blank") {
                     mp.set(href, m1);
                 }
@@ -117,23 +117,27 @@ async function exec(imgs: Img[], bpath: string, outdir: string = "") {
         return JSON.parse(code.slice(17,-2))
     })()`);
     const PAD = info.files.length > 99 ? 3 : 2;
-    for (let index = 0; index < info.files.length; index++) {
-        const ee = info.files[index];
-        const upath = "https://images.dmzj.com/" + ee;
-        const fname = info.cid + "_" + index.toString().padStart(PAD, "0") + extname(ee);
-        console.log(info.name, index, upath, "->", fname);
-        const resp = await axios.get<Buffer>(upath, {
-            timeout: 1e4,
-            headers: {
-                "Referer": HOME + "/",
-                "User-Agent": "Mozilla/5.0",
-                "Accept": "*/*",
-            },
-            responseType: "arraybuffer"
-        });
+    const qs = times(info.files.length).map(index => {
+        return async () => {
+            const ee = info.files[index];
+            const upath = "https://images.dmzj.com/" + ee;
+            const fname = info.cid + "_" + index.toString().padStart(PAD, "0") + extname(ee);
+            console.log(info.name, index, upath, "->", fname);
+            const resp = await axios.get<Buffer>(upath, {
+                timeout: 1e4,
+                headers: {
+                    "Referer": HOME + "/",
+                    "User-Agent": "Mozilla/5.0",
+                    "Accept": "*/*",
+                },
+                responseType: "arraybuffer"
+            });
 
-        await writeFile(pathJoin(outdir, fname), resp.data);
-        imgs.push({ data: resp.data, fname: fname, });
-    }
+            await writeFile(pathJoin(outdir, fname), resp.data);
+            imgs.push({ data: resp.data, fname: pathJoin(outdir, fname) });
+        };
+    });
+
+    doLimit(8, qs);
     return info;
 }

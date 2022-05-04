@@ -1,6 +1,6 @@
 import Packer from "zip-stream";
 
-import { createWriteStream } from "fs";
+import { createWriteStream, unlinkSync } from "fs";
 import { basename } from "path";
 
 export interface Img {
@@ -13,7 +13,6 @@ export async function packZip(fname: string, imgs: Img[]) {
 
     function push(data: any, opt: any): Promise<any> {
         return new Promise<any>((res, rej) => {
-            console.log("entry %j", opt, data.length);
             archive.entry(data, opt, (err: Error, entry: any) => {
                 err ? rej(err) : res(entry);
             });
@@ -23,11 +22,14 @@ export async function packZip(fname: string, imgs: Img[]) {
     const output = createWriteStream(fname);
     archive.pipe(output);
 
-    const qs = imgs.map((img) => {
-        return push(img.data, { name: basename(img.fname) });
-    });
-    await Promise.all(qs);
+    for (const ee of imgs) {
+        await push(ee.data, { name: basename(ee.fname) });
+    }
     archive.finish();
+
+    for (const img of imgs) {
+        unlinkSync(img.fname);
+    }
 }
 
 /** 简化axios的异常 */

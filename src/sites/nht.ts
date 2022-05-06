@@ -52,7 +52,7 @@ export class Hent implements Commander {
         const mc = regSite.exec(bpath);
         if (imgs.length > 99 && mc) {
             const id = mc[1];
-            console.log(`zip nh_${id}.zip ${id}_*.jpg`);
+            console.log(`zip -m nh_${id}.zip ${id}_*.jpg`);
             return;
         }
         if (imgs.length && mc) {
